@@ -422,9 +422,33 @@ function install_delocate {
 }
 
 function repair_wheelhouse {
-    local wheelhouse=$1
+    # Runs 'auditwheel repair' over all wheels in a directory
+    # If the wheel is not renamed by the repair process,
+    # then the original wheel will be left unmodified
+    local in_dir=$1
+    local out_dir=${2:-$in_dir}
     install_delocate
-    delocate-wheel $wheelhouse/*.whl # copies library dependencies into wheel
+    for whl in $in_dir/*.whl; do
+        if [[ $whl == *none-any.whl ]]; then  # Pure Python wheel
+            if [ "$in_dir" != "$out_dir" ]; then cp $whl $out_dir; fi
+        else
+            local tmpdir=$(mktemp -d -t)
+
+            delocate-wheel $whl -w $tmpdir/
+
+            local built=$(find $tmpdir -name *.whl)
+            if [ $(basename $built) == $(basename $whl) ]; then
+                if [ "$in_dir" != "$out_dir" ]; then cp $whl $out_dir; fi
+            else
+                cp $built $out_dir
+
+                # Remove unfixed if writing into same directory
+                if [ "$in_dir" == "$out_dir" ]; then rm $whl; fi
+            fi
+            rm -rf $tmpdir
+        fi
+    done
+    chmod -R a+rwX $out_dir
 }
 
 function install_pkg_config {
