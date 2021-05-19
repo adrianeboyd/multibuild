@@ -436,7 +436,7 @@ function repair_wheelhouse {
 
             delocate-wheel $whl -w $tmpdir/
 
-            local built=$(find $tmpdir -name *.whl)
+            local built=$(find $tmpdir -name "*.whl")
             if [ $(basename $built) == $(basename $whl) ]; then
                 if [ "$in_dir" != "$out_dir" ]; then cp $whl $out_dir; fi
             else
