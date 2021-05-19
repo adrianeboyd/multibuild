@@ -140,7 +140,7 @@ function pyinst_ext_for_version {
             echo "dmg"
         fi
     elif [ $py_0 -ge 3 ]; then
-		echo "pkg"
+                echo "pkg"
     fi
 }
 
@@ -428,6 +428,9 @@ function repair_wheelhouse {
     local in_dir=$1
     local out_dir=${2:-$in_dir}
     install_delocate
+    echo $SHELL
+    echo "indir" $in_dir
+    echo "outdir" $out_dir
     for whl in $in_dir/*.whl; do
         if [[ $whl == *none-any.whl ]]; then  # Pure Python wheel
             if [ "$in_dir" != "$out_dir" ]; then cp $whl $out_dir; fi
@@ -435,11 +438,15 @@ function repair_wheelhouse {
             local tmpdir=$(mktemp -d)
 
             delocate-wheel $whl -w $tmpdir/
+            echo "whl" $whl
 
             local built=$(find $tmpdir -name "*.whl")
+            echo "built" $built
             if [ $(basename $built) == $(basename $whl) ]; then
+                echo "copying to outdir"
                 if [ "$in_dir" != "$out_dir" ]; then cp $whl $out_dir; fi
             else
+                echo "copying else"
                 cp $built $out_dir
 
                 # Remove unfixed if writing into same directory
