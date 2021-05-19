@@ -432,7 +432,7 @@ function repair_wheelhouse {
         if [[ $whl == *none-any.whl ]]; then  # Pure Python wheel
             if [ "$in_dir" != "$out_dir" ]; then cp $whl $out_dir; fi
         else
-            local tmpdir=$(mktemp -d -t)
+            local tmpdir=$(mktemp -d)
 
             delocate-wheel $whl -w $tmpdir/
 
